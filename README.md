@@ -1,7 +1,29 @@
 # Light-Tron-Cycle-2D
-Dans le cadre de ce travail pratique, nous réalisons un jeu inspiré de Tron light cycle en 2D, où deux joueurs se déplacent sur une grille dans les quatre directions et laissent une traînée derrière eux.
-## The protocol
+Dans le cadre de ce travail pratique, nous réalisons un jeu inspiré de Tron light cycle en 2D, 
+où deux joueurs se déplacent sur une grille dans les quatre directions et laissent une traînée derrière eux.
 
+## Auteurs
+- Romain Durussel 
+- Abram Zweifel
+
+HEIG-VD, Class C, 2025–2026
+
+## Table des matières
+
+- [The protocol](#the-protocol)
+    - [Overview](#overview)
+    - [Transport protocol](#transport-protocol)
+    - [Messages](#messages)
+        - [Connexion et annonce du joueur](#connexion-et-annonce-du-joueur-handshake-et-session)
+        - [Déclaration de disponibilité (READY)](#déclaration-de-disponibilité)
+        - [Début d’une partie (GAME_START)](#début-dune-partie)
+        - [Envoi des entrées (INPUT)](#envoi-des-entrées)
+        - [État du jeu (STATE)](#état-du-jeu)
+        - [Fin de partie (GAME_END)](#fin-de-partie)
+        - [Gestion des erreurs (ERROR)](#gestion-des-erreurs)
+    - [Examples](#exemples)
+
+## The protocol
 ### Overview
 
 Cette section définit un protocole d’application pour un jeu multijoueur en ligne inspiré de Tron Light Cycle. 
@@ -11,8 +33,8 @@ Une manche se termine lorsqu’un joueur entre en collision (avec un mur ou la t
 
 ### Transport protocol
 
-Le protocole d’application est un protocole de transport textuel. Le protocole TCP est utilisé (fiable et orienté connexion).
-Le port utilisé est le 1234.
+Le protocole d’application est un protocole textuel utilisant TCP comme transport. Le protocole TCP est utilisé (fiable et orienté connexion).
+Le port utilisé par défaut est 2222 (configurable via la CLI).
 
 Les messages sont envoyés en texte brut UTF-8, un par ligne. Chaque message est donc une ligne terminée par \n.
 
@@ -38,12 +60,15 @@ Request
 HELLO <version> <playerName>
 ```
 
-- version : chaîne courte représentant la version du protocole (par exemple 1.0). 
-- playerName : pseudo du joueur, sans espace (par exemple Alice).
+- HELLO
+  - version : chaîne courte représentant la version du protocole (par exemple 1.0). 
+  - playerName : pseudo du joueur, sans espace (par exemple Alice).
 
 Response
-```WELCOME <serverVersion> <playerId> <matchId> <width> <height> <tickMillis>```
-```ERROR <code> <message>```
+```
+WELCOME <serverVersion> <playerId> <matchId> <width> <height> <tickMillis>```
+ERROR <code> <message>
+```
 
 - WELCOME signifie que le serveur accepte la connexion et la version de protocole.
   - serverVersion : version du protocole utilisée par le serveur.
@@ -52,7 +77,7 @@ Response
   - width et height : dimensions de la grille. 
   - tickMillis : durée d’un « tick » de jeu en millisecondes (par exemple 50).
 
-- ERROR <code> <message> signifie que le serveur refuse la connexion ou la version. 
+- ERROR signifie que le serveur refuse la connexion ou la version. 
   - code : entier représentant le type d’erreur (voir section Error handling plus bas). 
   - message : court texte expliquant l’erreur.
 
@@ -97,7 +122,7 @@ GAME_START <matchId> <p1Id> <p1x> <p1y> <p1dir> <p2Id> <p2x> <p2y> <p2dir>
 Les traînées sont vides au début de chaque manche ; seuls les deux points de départ des joueurs sont occupés par leur tête.
 
 
-#### Envoi des entrées (changement de direction)
+#### Envoi des entrées
 
 Le client envoie au serveur la direction que le joueur souhaite prendre. 
 Le serveur applique au plus une direction par joueur et par tick, en utilisant la dernière direction reçue à temps.
@@ -136,11 +161,11 @@ STATE <matchId> <tick> <phase> <players> <trails>
 - phase : phase actuelle du jeu pour la manche. Les valeurs possibles sont :
   - LOBBY : la partie n’a pas encore commencé (en attente des joueurs prêts). 
   - RUNNING : la partie est en cours. 
-  - GAME_OVER : la partie est terminée.
+  - GAME_OVER : la partie est terminée (un message GAME_END a été ou va être envoyé).
 - players : liste des joueurs, au format : playerId:x:y:dir:alive,playerId2:x2:y2:dir2:alive2 
 - où alive vaut 1 si le joueur est en vie et 0 s’il est déjà en collision.
 - trails : liste des cases occupées par les traînées, au format : x1:y1,x2:y2,x3:y3,...
-Si aucune traînée n’est présente (par exemple au début de la manche), ce champ peut être vide (par exemple -).
+Si aucune traînée n’est présente (par exemple au début de la manche), ce champ doit être '-' lorsque aucune traînée n’est présente.
 
 #### Fin de partie
 
@@ -157,7 +182,7 @@ GAME_END <reason> <winnerId>
   - COLLISION : un joueur est entré en collision avec un mur ou une traînée. 
   - DOUBLE_KO : les deux joueurs entrent en collision en même temps, par exemple en arrivant sur la même case ou en se percutant tête-à-tête. 
   - DISCONNECT : un joueur s’est déconnecté pendant la manche.
-- winnerId : identifiant du joueur qui a gagné la partie.
+- winnerId : identifiant du joueur qui a gagné la partie. En cas de DOUBLE_KO (égalité), cela doit être '-'.
 
 Après ce message, le serveur peut fermer la connexion ou, selon l’implémentation, attendre de nouveaux READY pour démarrer une nouvelle partie.
 
@@ -191,4 +216,5 @@ Les codes d’erreur suivants sont définis :
 
 Le client doit au minimum afficher le message d’erreur à l’utilisateur.
 
-#### Examples
+#### Exemples
+#### TODO

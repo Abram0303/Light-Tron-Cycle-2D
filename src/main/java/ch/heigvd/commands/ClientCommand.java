@@ -34,7 +34,7 @@ public class ClientCommand implements Runnable {
     @Override
     public void run() {
         System.out.printf("Connexion au serveur %s:%d avec le pseudo '%s'%n", host, port, playerName);
-        TronClient client = new TronClient(host, port, playerName);
-        client.start(); // ToDO
+        TronClient client = new TronClient(host, port, playerName); // Création d'un client avec les paramètres de la ligne de commande
+        client.start(); // Démarrage du client
     }
 }

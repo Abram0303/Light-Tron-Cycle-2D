@@ -1,6 +1,7 @@
 # Light-Tron-Cycle-2D
 Dans le cadre de ce travail pratique, nous réalisons un jeu inspiré de Tron light cycle en 2D, 
 où deux joueurs se déplacent sur une grille dans les quatre directions et laissent une traînée derrière eux.
+Une manche se termine lorsqu’un joueur entre en collision (avec un mur ou la traînée d'un autre joueur).
 
 ## Auteurs
 - Romain Durussel 
@@ -10,9 +11,9 @@ HEIG-VD, Class C, 2025–2026
 
 ## Table des matières
 
-- [The protocol](#the-protocol)
-    - [Overview](#overview)
-    - [Transport protocol](#transport-protocol)
+- [Le protocole applicatif](#le-protocole-applicatif)
+    - [Aperçu](#aperçu)
+    - [Protocole de transport](#protocole-de-transport)
     - [Messages](#messages)
         - [Connexion et annonce du joueur](#connexion-et-annonce-du-joueur-handshake-et-session)
         - [Déclaration de disponibilité (READY)](#déclaration-de-disponibilité)
@@ -21,7 +22,7 @@ HEIG-VD, Class C, 2025–2026
         - [État du jeu (STATE)](#état-du-jeu)
         - [Fin de partie (GAME_END)](#fin-de-partie)
         - [Gestion des erreurs (ERROR)](#gestion-des-erreurs)
-    - [Examples](#exemples)
+    - [Exemples](#exemples)
 
 ## Le protocole applicatif
 ### Aperçu
@@ -216,5 +217,5 @@ Les codes d’erreur suivants sont définis :
 
 Le client doit au minimum afficher le message d’erreur à l’utilisateur.
 
-#### Exemples
+### Exemples
 #### TODO

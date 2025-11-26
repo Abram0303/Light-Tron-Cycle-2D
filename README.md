@@ -1,7 +1,4 @@
 # Light-Tron-Cycle-2D
-Dans le cadre de ce travail pratique, nous réalisons un jeu inspiré de Tron light cycle en 2D, 
-où deux joueurs se déplacent sur une grille dans les quatre directions et laissent une traînée derrière eux.
-Une manche se termine lorsqu’un joueur entre en collision (avec un mur ou la traînée d'un autre joueur).
 
 ## Auteurs
 - Romain Durussel 
@@ -11,6 +8,7 @@ HEIG-VD, Class C, 2025–2026
 
 ## Table des matières
 
+- [Règles du jeu](#règles-du-jeu)
 - [Le protocole applicatif](#le-protocole-applicatif)
     - [Aperçu](#aperçu)
     - [Protocole de transport](#protocole-de-transport)
@@ -24,13 +22,31 @@ HEIG-VD, Class C, 2025–2026
         - [Gestion des erreurs (ERROR)](#gestion-des-erreurs)
     - [Exemples](#exemples)
 
+
+## Règles du jeu
+
+Le jeu s’inspire du concept de Tron Light Cycle en 2D.
+Deux joueurs se déplacent sur une grille dans l’une des quatre directions possibles : UP, DOWN, LEFT ou RIGHT.
+
+Chaque joueur laisse derrière lui une traînée qui occupe les cases du plateau au fur et à mesure de son déplacement.
+Une manche se termine immédiatement lorsqu’un joueur entre en collision, que ce soit :
+
+- avec un mur de la grille,
+
+- avec sa propre traînée,
+
+- avec la traînée de l’adversaire.
+
+Le dernier joueur encore en vie est déclaré vainqueur de la partie.
+En cas de collision simultanée (par exemple, les deux joueurs se percutent tête-à-tête ou arrivent sur la même case), la manche se conclut par un DOUBLE_KO, sans vainqueur.
+
 ## Le protocole applicatif
 ### Aperçu
 
 Cette section définit un protocole d’application pour un jeu multijoueur en ligne inspiré de Tron Light Cycle. 
 Deux clients se connectent à un serveur autoritaire qui simule la partie sur une grille 2D. 
 À chaque tick de la simulation, le serveur applique les entrées de direction, déplace les joueurs, met à jour les traînées, détecte les collisions. 
-Une manche se termine lorsqu’un joueur entre en collision (avec un mur ou la traînée d'un autre joueur).
+Une manche se termine lorsqu’un joueur entre en collision (avec un mur ou une traînée).
 
 ### Protocole de transport
 

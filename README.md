@@ -23,15 +23,15 @@ HEIG-VD, Class C, 2025–2026
         - [Gestion des erreurs (ERROR)](#gestion-des-erreurs)
     - [Examples](#exemples)
 
-## The protocol
-### Overview
+## Le protocole applicatif
+### Aperçu
 
 Cette section définit un protocole d’application pour un jeu multijoueur en ligne inspiré de Tron Light Cycle. 
 Deux clients se connectent à un serveur autoritaire qui simule la partie sur une grille 2D. 
 À chaque tick de la simulation, le serveur applique les entrées de direction, déplace les joueurs, met à jour les traînées, détecte les collisions. 
 Une manche se termine lorsqu’un joueur entre en collision (avec un mur ou la traînée d'un autre joueur).
 
-### Transport protocol
+### Protocole de transport
 
 Le protocole d’application est un protocole textuel utilisant TCP comme transport. Le protocole TCP est utilisé (fiable et orienté connexion).
 Le port utilisé par défaut est 2222 (configurable via la CLI).
@@ -41,7 +41,7 @@ Les messages sont envoyés en texte brut UTF-8, un par ligne. Chaque message est
 Les messages ont la forme générale :
 
 ```
-COMMANDE param1 param2 ...
+COMMANDE param1 param2 ... paramN
 ```
 
 Le serveur peut à tout moment renvoyer un message pour signaler une erreur de protocole ou de logique. En cas d’erreur grave, le serveur peut ensuite fermer la connexion.
@@ -66,7 +66,7 @@ HELLO <version> <playerName>
 
 Response
 ```
-WELCOME <serverVersion> <playerId> <matchId> <width> <height> <tickMillis>```
+WELCOME <serverVersion> <playerId> <matchId> <width> <height> <tickMillis>
 ERROR <code> <message>
 ```
 

@@ -8,15 +8,26 @@ import java.util.UUID;
 public class TronServerClientHandler implements Runnable {
 
     private static final String END_OF_LINE = "\n";
-    private static final String SERVER_VERSION = "1.0";
 
+    private final TronServer server; // Référence au serveur pour enregistrer les joueurs
     private final Socket clienSocket;
-    private final int tickMillis;
+    private String playerName;
+    private String playerId;
+    private boolean ready = false;
 
+    private BufferedWriter out; // Flux de sortie vers le client (partagé)
 
-    public TronServerClientHandler(Socket socket, int tickMillis) {
-        this.clienSocket = socket;
-        this.tickMillis = tickMillis;
+    String getPlayerId() {
+        return playerId;
+    }
+
+    public TronServerClientHandler(TronServer server, Socket clienSocket) {
+        this.server = server;
+        this.clienSocket = clienSocket;
+    }
+
+    public String getPlayer() {
+        return playerName;
     }
 
     @Override
@@ -27,10 +38,12 @@ public class TronServerClientHandler implements Runnable {
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8)
                 );
-                BufferedWriter out = new BufferedWriter(
+                BufferedWriter bw = new BufferedWriter(
                         new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)
                 )
         ) {
+            this.out = bw; // Obligatoire pour pouvoir l'utiliser dans la méthode sendMessage
+
             String line = in.readLine();
             if (line == null) {
                 System.out.println("Client déconnecté immédiatement.");
@@ -39,55 +52,101 @@ public class TronServerClientHandler implements Runnable {
 
             System.out.println("<< " + line);
 
-            // Traiter la commande HELLO
+            // Traiter le message HELLO
             String[] parts = line.split(" ");
-            if (parts.length < 3 || !"HELLO".equals(parts[0])) {
-                sendError(out, 2, "Message invalide, attendu : HELLO <version> <playerName>");
+            if (parts.length < 2 || !"HELLO".equals(parts[0])) {
+                sendError(out, 2, "Message invalide (attendu : HELLO <playerName>)");
                 return;
             }
-
-            String clientVersion = parts[1];
-            String playerName = parts[2];
-
-            if (!SERVER_VERSION.equals(clientVersion)) {
-                sendError(out, 1, "Version non supportée " + clientVersion);
-                return;
-            }
+            playerName = parts[1];
 
             // Construction et envoi du message WELCOME
-            String playerId = "P-" + UUID.randomUUID();
-            String matchId = "M-1";
-            int width = 40;
-            int height = 30;
+            playerId = "P-" + UUID.randomUUID();
+            String welcome = String.format("WELCOME %s", playerId);
+            sendMessage(welcome);
+            System.out.println();
 
-            String welcome = String.format(
-                    "WELCOME %s %s %s %d %d %d",
-                    SERVER_VERSION,
-                    playerId,
-                    matchId,
-                    width,
-                    height,
-                    tickMillis
-            );
+            // Enregistrer le joueur nouvellement connecté sur le serveur si besoin (gestion de la file d'attente, etc.)
+            // Todo
 
-            sendLine(out, welcome);
-            System.out.println(">> " + welcome);
+            // Boucle principale pour lire les messages READY, INPUT, etc.
+            while ((line = in.readLine()) != null) {
+                System.out.println("<< " + line);
+                handleCommand(line, out, playerName);
+            }
 
-            // TODO, gérer READY, GAME_START, loop de jeu, etc.
+            System.out.println("Client déconnecté : " + socket.getRemoteSocketAddress());
 
         } catch (IOException e) {
             System.err.println("Erreur côté client handler : " + e.getMessage());
         }
     }
 
-    private void sendLine(BufferedWriter out, String msg) throws IOException {
-        out.write(msg + END_OF_LINE);
+    // Gère les commandes reçues du client
+    private void handleCommand(String line, BufferedWriter out, String playerName) throws IOException {
+        String[] parts = line.trim().split(" ");
+        if (parts.length == 0) {
+            sendError(out, 2, "message vide");
+            return;
+        }
+
+        String command = parts[0];
+
+        switch (command) {
+            case "READY" :
+                handleReady(playerName);
+                break;
+            case "INPUT" :
+                handleInput(parts, out, playerName);
+                break;
+            default :
+                sendError(out, 2, "commande inconnue : " + command);
+                break;
+        }
+    }
+
+    // Gère la commande READY
+    private void handleReady(String playerName) throws IOException {
+        if (ready) {
+            sendError(out, 3, "READY déjà envoyé");
+            return;
+        }
+        // Marquer le joueur comme prêt
+        ready = true;
+        System.out.println("Joueur " + playerName + " est READY");
+        server.registerPlayer(this);
+    }
+
+    // Gère la commande INPUT
+    private void handleInput(String[] parts, BufferedWriter out, String playerName) throws IOException {
+        if (parts.length != 2) {
+            sendError(out, 2, "usage: INPUT <direction>");
+            return;
+        }
+
+        String direction = parts[1];
+
+        if (!direction.equals("UP") &&
+                !direction.equals("DOWN") &&
+                !direction.equals("LEFT") &&
+                !direction.equals("RIGHT")) {
+            sendError(out, 2, "direction invalide : " + direction);
+            return;
+        }
+
+        System.out.println("INPUT reçu de " + playerName + " : " + direction);
+
+        // Plus tard : enregistrer cette direction dans l'état du jeu pour qu'elle soit appliquée au prochain tick.
+    }
+
+    public void sendMessage(String message) throws IOException {
+        out.write(message + END_OF_LINE);
         out.flush();
+        System.out.println(">> " + message);
     }
 
     private void sendError(BufferedWriter out, int code, String message) throws IOException {
         String error = "ERROR " + code + " " + message;
-        sendLine(out, error);
-        System.out.println(">> " + error);
+        sendMessage(error);
     }
 }

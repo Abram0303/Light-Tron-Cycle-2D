@@ -39,7 +39,7 @@ public class TronClient {
             System.out.printf("Connecté à %s:%d%n", host, port);
 
             // Commande HELLO
-            String hello = "HELLO 1.0 " + playerName;
+            String hello = "HELLO " + playerName;
             out.write(hello + END_OF_LINE);
             out.flush();
 

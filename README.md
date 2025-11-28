@@ -69,35 +69,29 @@ Les clients envoient des entrées utilisateur (changement de direction) et rende
 
 #### Connexion et annonce du joueur (handshake et session)
 
-Le client annonce sa version de protocole et le nom du joueur au serveur. 
-Le serveur répond en confirmant la version de protocole supportée et en attribuant un identifiant unique au joueur dans la partie.
+Le client annonce son nom du joueur au serveur. 
+Le serveur répond en attribuant un identifiant unique au joueur dans la partie.
 
 Request
 ```
-HELLO <version> <playerName>
+HELLO <playerName>
 ```
 
 - HELLO
-  - version : chaîne courte représentant la version du protocole (par exemple 1.0). 
   - playerName : pseudo du joueur, sans espace (par exemple Alice).
 
 Response
 ```
-WELCOME <serverVersion> <playerId> <matchId> <width> <height> <tickMillis>
+WELCOME <playerId>
 ERROR <code> <message>
 ```
 
 - WELCOME signifie que le serveur accepte la connexion et la version de protocole.
-  - serverVersion : version du protocole utilisée par le serveur.
   - playerId : identifiant unique attribué au joueur (par exemple P1).
-  - matchId : identifiant de la partie. 
-  - width et height : dimensions de la grille. 
-  - tickMillis : durée d’un « tick » de jeu en millisecondes (par exemple 50).
 
 - ERROR signifie que le serveur refuse la connexion ou la version. 
   - code : entier représentant le type d’erreur (voir section Error handling plus bas). 
   - message : court texte expliquant l’erreur.
-
 
 
 #### Déclaration de disponibilité

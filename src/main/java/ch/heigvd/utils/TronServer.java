@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TronServer {
 
@@ -14,14 +15,19 @@ public class TronServer {
     // Liste des joueurs prêts à jouer (thread-safe)
     private final CopyOnWriteArrayList<TronServerClientHandler> readyPlayers = new CopyOnWriteArrayList<>();
 
+    // Générateur d'IDs uniques pour les joueurs (thread-safe)
+    private static final AtomicInteger nextPlayerId = new AtomicInteger(1);
+
     private final int port;
     private final int tickMillis; // Durée d'un tick en millisecondes
-    private final ExecutorService clientPool;
+    private final ExecutorService clientPool; // Pool de threads pour gérer les clients
+    private final ExecutorService gamePool; // Pool de threads pour gérer les parties
 
     public TronServer(int port, int tickMillis) {
         this.port = port;
         this.tickMillis = tickMillis;
         this.clientPool = Executors.newFixedThreadPool(2); // Maximum 2 joueurs simultanés
+        this.gamePool = Executors.newSingleThreadExecutor(); // Une partie à la fois
     }
 
     public void start() {
@@ -54,26 +60,17 @@ public class TronServer {
             TronServerClientHandler p1 = readyPlayers.get(0);
             TronServerClientHandler p2 = readyPlayers.get(1);
 
-            // Positions et directions initiales
-            int p1x = 5,  p1y = 10;
-            int p2x = 35, p2y = 10;
-            String p1dir = "RIGHT";
-            String p2dir = "LEFT";
+            // Enlever les deux joueurs de la liste des joueurs prêts
+            readyPlayers.remove(p1);
+            readyPlayers.remove(p2);
 
-            String gameStart = String.format(
-                    "GAME_START %s %s %d %d %s %s %d %d %s",
-                    matchId,
-                    p1.getPlayerId(), p1x, p1y, p1dir,
-                    p2.getPlayerId(), p2x, p2y, p2dir
-            );
-
-            try {
-                p1.sendMessage(gameStart + END_OF_LINE);
-                p2.sendMessage(gameStart + END_OF_LINE);
-            } catch (IOException e) {
-                System.err.println("Erreur lors de l'envoi de GAME_START : " + e.getMessage());
-            }
+            TronGame game = new TronGame(matchId, p1, p2, tickMillis);
+            gamePool.submit(game);
 
         }
+    }
+
+    public int generatePlayerId() {
+        return nextPlayerId.getAndIncrement();
     }
 }

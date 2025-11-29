@@ -90,7 +90,7 @@ ERROR <code> <message>
   - playerId : identifiant unique attribué au joueur (par exemple P1).
 
 - ERROR signifie que le serveur refuse la connexion ou la version. 
-  - code : entier représentant le type d’erreur (voir section Error handling plus bas). 
+  - code : entier représentant le type d’erreur (voir section [Gestion des erreurs](#gestion-des-erreurs)). 
   - message : court texte expliquant l’erreur.
 
 
@@ -108,7 +108,7 @@ Ce message ne contient pas de paramètre : il signifie simplement « je suis pr�
 
 Response
 Aucune réponse directe n’est envoyée.
-Lorsque les deux joueurs sont prêts, le serveur enverra un message GAME_START (voir plus bas) à tous les clients pour indiquer le début de la partie.
+Lorsque les deux joueurs sont prêts, le serveur enverra un message GAME_START à tous les clients pour indiquer le début de la partie.
 
 
 #### Début d’une partie
@@ -135,7 +135,7 @@ Les traînées sont vides au début de chaque manche ; seuls les deux points de 
 
 #### Envoi des entrées
 
-Le client envoie au serveur la direction que le joueur souhaite prendre. 
+Le client envoie au serveur la direction que le joueur souhaite prendre.
 Le serveur applique au plus une direction par joueur et par tick, en utilisant la dernière direction reçue à temps.
 
 Request

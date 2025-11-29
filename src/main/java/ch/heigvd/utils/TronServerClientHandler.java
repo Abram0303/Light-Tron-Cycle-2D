@@ -3,7 +3,6 @@ package ch.heigvd.utils;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 
 public class TronServerClientHandler implements Runnable {
 
@@ -16,6 +15,18 @@ public class TronServerClientHandler implements Runnable {
     private boolean ready = false;
 
     private BufferedWriter out; // Flux de sortie vers le client (partagé)
+
+    private volatile String pendingDirection = null; // Direction en attente d'être appliquée
+
+    public void setPendingDirection(String direction) {
+        this.pendingDirection = direction;
+    }
+
+    public String consumePendingDirection() {
+        String d = pendingDirection;
+        pendingDirection = null; // Réinitialiser après consommation
+        return d;
+    }
 
     String getPlayerId() {
         return playerId;
@@ -55,13 +66,13 @@ public class TronServerClientHandler implements Runnable {
             // Traiter le message HELLO
             String[] parts = line.split(" ");
             if (parts.length < 2 || !"HELLO".equals(parts[0])) {
-                sendError(out, 2, "Message invalide (attendu : HELLO <playerName>)");
+                sendError(out, 2, "Message invalide (usage : HELLO <playerName>)");
                 return;
             }
             playerName = parts[1];
 
             // Construction et envoi du message WELCOME
-            playerId = "P-" + UUID.randomUUID();
+            playerId = "P-" + server.generatePlayerId();
             String welcome = String.format("WELCOME %s", playerId);
             sendMessage(welcome);
             System.out.println();
@@ -120,7 +131,7 @@ public class TronServerClientHandler implements Runnable {
     // Gère la commande INPUT
     private void handleInput(String[] parts, BufferedWriter out, String playerName) throws IOException {
         if (parts.length != 2) {
-            sendError(out, 2, "usage: INPUT <direction>");
+            sendError(out, 2, "usage : INPUT <direction>");
             return;
         }
 
@@ -136,7 +147,8 @@ public class TronServerClientHandler implements Runnable {
 
         System.out.println("INPUT reçu de " + playerName + " : " + direction);
 
-        // Plus tard : enregistrer cette direction dans l'état du jeu pour qu'elle soit appliquée au prochain tick.
+        // Enregistrer que la dernière direction
+        setPendingDirection(direction);
     }
 
     public void sendMessage(String message) throws IOException {

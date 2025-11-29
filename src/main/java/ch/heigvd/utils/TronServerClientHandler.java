@@ -72,7 +72,7 @@ public class TronServerClientHandler implements Runnable {
             playerName = parts[1];
 
             // Construction et envoi du message WELCOME
-            playerId = "P-" + server.generatePlayerId();
+            playerId = "P" + server.generatePlayerId();
             String welcome = String.format("WELCOME %s", playerId);
             sendMessage(welcome);
             System.out.println();

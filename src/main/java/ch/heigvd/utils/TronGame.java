@@ -196,7 +196,7 @@ public class TronGame implements Runnable {
                 .collect(Collectors.joining(","));
 
         String msg = String.format(
-                "STATE %s %d %s %s %s",
+                "STATE %s t%d %s %s %s",
                 matchId,
                 tick,
                 phase.name(),

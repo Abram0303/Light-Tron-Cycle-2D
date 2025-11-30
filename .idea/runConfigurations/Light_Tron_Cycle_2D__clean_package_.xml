@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Light_Tron_Cycle_2D" type="MavenRunConfiguration" factoryName="Maven" nameIsGenerated="true">
+  <configuration default="false" name="Light_Tron_Cycle_2D [clean,package]" type="MavenRunConfiguration" factoryName="Maven" nameIsGenerated="true">
     <MavenSettings>
       <option name="myGeneralSettings" />
       <option name="myRunnerSettings" />
@@ -10,7 +10,10 @@
             <set />
           </option>
           <option name="goals">
-            <list />
+            <list>
+              <option value="clean" />
+              <option value="package" />
+            </list>
           </option>
           <option name="multimoduleDir" />
           <option name="pomFileName" />

@@ -20,16 +20,22 @@ public class TronGame implements Runnable {
     private int p1x = 10, p1y = 20, p2x = 70, p2y = 20;
     private Direction p1dir = Direction.RIGHT, p2dir = Direction.LEFT;
     private boolean p1Alive = true, p2Alive = true;
-    private final boolean[][] trails = new boolean[WIDTH][HEIGHT];
-    private final List<Point> trailList = new ArrayList<>();
+
+    // Matrice pour collision rapide O(1)
+    private final boolean[][] trailsMap = new boolean[WIDTH][HEIGHT];
+
+    // Listes séparées pour l'envoi au client
+    private final List<Point> p1Trails = new ArrayList<>();
+    private final List<Point> p2Trails = new ArrayList<>();
 
     public TronGame(String matchId, TronServerClientHandler p1, TronServerClientHandler p2, int tickMillis) {
         this.matchId = matchId;
         this.p1 = p1;
         this.p2 = p2;
         this.tickMillis = tickMillis;
-        markTrail(p1x, p1y);
-        markTrail(p2x, p2y);
+        // Marquer les positions initiales
+        markTrail(p1x, p1y, 1);
+        markTrail(p2x, p2y, 2);
     }
 
     @Override
@@ -45,7 +51,7 @@ public class TronGame implements Runnable {
                 long elapsed = now - lastTime;
 
                 if (elapsed >= tickMillis) {
-                    lastTime = now; // ou lastTime += tickMillis pour être très précis
+                    lastTime = now;
                     tick++;
                     applyInputs();
                     stepSimulation();
@@ -74,10 +80,12 @@ public class TronGame implements Runnable {
 
         boolean c1 = !isInside(nx1, ny1) || isTrail(nx1, ny1);
         boolean c2 = !isInside(nx2, ny2) || isTrail(nx2, ny2);
+
+        // Collision frontale
         if (nx1 == nx2 && ny1 == ny2) { c1 = true; c2 = true; }
 
-        if (!c1) { p1x = nx1; p1y = ny1; markTrail(p1x, p1y); } else p1Alive = false;
-        if (!c2) { p2x = nx2; p2y = ny2; markTrail(p2x, p2y); } else p2Alive = false;
+        if (!c1) { p1x = nx1; p1y = ny1; markTrail(p1x, p1y, 1); } else p1Alive = false;
+        if (!c2) { p2x = nx2; p2y = ny2; markTrail(p2x, p2y, 2); } else p2Alive = false;
     }
 
     private void endGameAfterCollision() throws IOException {
@@ -98,14 +106,26 @@ public class TronGame implements Runnable {
     private void sendState() throws IOException {
         String pStr = String.format("%s:%d:%d:%s:%d,%s:%d:%d:%s:%d",
                 p1.getPlayerId(), p1x, p1y, p1dir, p1Alive?1:0, p2.getPlayerId(), p2x, p2y, p2dir, p2Alive?1:0);
-        String tStr = trailList.isEmpty() ? "-" : trailList.stream().map(p->p.x()+":"+p.y()).collect(Collectors.joining(","));
-        String msg = String.format("STATE %s %d %s %s %s", matchId, tick, phase.name(), pStr, tStr);
+
+        // Sérialisation des deux listes
+        String t1Str = p1Trails.isEmpty() ? "-" : p1Trails.stream().map(Point::toString).collect(Collectors.joining(","));
+        String t2Str = p2Trails.isEmpty() ? "-" : p2Trails.stream().map(Point::toString).collect(Collectors.joining(","));
+
+        // PROTOCOLE MODIFIÉ : Ajout de t2Str à la fin
+        String msg = String.format("STATE %s %d %s %s %s %s", matchId, tick, phase.name(), pStr, t1Str, t2Str);
         p1.sendMessage(msg); p2.sendMessage(msg);
     }
 
     private int dx(Direction d) { return d == Direction.LEFT ? -1 : (d == Direction.RIGHT ? 1 : 0); }
     private int dy(Direction d) { return d == Direction.UP ? -1 : (d == Direction.DOWN ? 1 : 0); }
     private boolean isInside(int x, int y) { return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT; }
-    private boolean isTrail(int x, int y) { return trails[x][y]; }
-    private void markTrail(int x, int y) { if(!trails[x][y]) { trails[x][y]=true; trailList.add(new Point(x,y)); } }
+    private boolean isTrail(int x, int y) { return trailsMap[x][y]; }
+
+    private void markTrail(int x, int y, int playerNum) {
+        if(!trailsMap[x][y]) {
+            trailsMap[x][y] = true;
+            if (playerNum == 1) p1Trails.add(new Point(x,y));
+            else p2Trails.add(new Point(x,y));
+        }
+    }
 }

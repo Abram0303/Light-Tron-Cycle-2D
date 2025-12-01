@@ -10,8 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TronServer {
 
-    private static final String END_OF_LINE = "\n";
-
     // Liste des joueurs prêts à jouer (thread-safe)
     private final CopyOnWriteArrayList<TronServerClientHandler> readyPlayers = new CopyOnWriteArrayList<>();
 
@@ -66,7 +64,6 @@ public class TronServer {
 
             TronGame game = new TronGame(matchId, p1, p2, tickMillis);
             gamePool.submit(game);
-
         }
     }
 

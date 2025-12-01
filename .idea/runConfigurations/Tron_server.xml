@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Tron server" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="ch.heigvd.Main" />
+    <module name="Light_Tron_Cycle_2D" />
+    <option name="PROGRAM_PARAMETERS" value="server --port 2222 --tick-millis 80" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

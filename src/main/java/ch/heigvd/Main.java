@@ -1,6 +1,7 @@
 package ch.heigvd;
 
 import ch.heigvd.commands.ClientCommand;
+import ch.heigvd.commands.GuiCommand;
 import ch.heigvd.commands.ServerCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -9,21 +10,17 @@ import picocli.CommandLine.Command;
         name = "light-tron",
         mixinStandardHelpOptions = true,
         version = "1.0",
-        description = "Light-Tron-Cycle-2D - jeu réseau inspiré de Tron.",
         subcommands = {
                 ServerCommand.class,
-                ClientCommand.class
+                ClientCommand.class,
+                GuiCommand.class
         }
 )
 public class Main implements Runnable {
-
     @Override
-    public void run() {
-        CommandLine.usage(this, System.out);
-    }
+    public void run() { CommandLine.usage(this, System.out); }
 
     public static void main(String[] args) {
-        int exitCode = new CommandLine(new Main()).execute(args);
-        System.exit(exitCode);
+        System.exit(new CommandLine(new Main()).execute(args));
     }
 }

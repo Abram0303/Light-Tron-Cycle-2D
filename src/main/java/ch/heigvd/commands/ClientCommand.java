@@ -30,9 +30,10 @@ public class ClientCommand implements Runnable {
             public void onRawMessage(String msg) {
                 System.out.println("<< " + msg);
             }
+            // Correction ici : acceptation de t1 et t2
             @Override
-            public void onState(String p, int x1, int y1, boolean a1, int x2, int y2, boolean a2, List<Point> t) {
-                // En mode console, on n'affiche pas tout l'état graphique, juste les raw messages
+            public void onState(String p, int x1, int y1, boolean a1, int x2, int y2, boolean a2, List<Point> t1, List<Point> t2) {
+                // Rien à faire en mode console graphique
             }
             @Override
             public void onGameEnd(String reason, String winnerId) {
@@ -53,7 +54,7 @@ public class ClientCommand implements Runnable {
                 client.stop();
                 break;
             }
-            client.send(line); // Envoie brut (INPUT UP, READY, etc.)
+            client.send(line);
         }
     }
 }

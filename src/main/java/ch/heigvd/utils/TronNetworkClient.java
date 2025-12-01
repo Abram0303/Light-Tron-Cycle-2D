@@ -30,11 +30,8 @@ public class TronNetworkClient implements Runnable {
         t.start();
     }
 
-    public void stop() {
-        running = false;
-    }
+    public void stop() { running = false; }
 
-    // Envoi de messages génériques
     public void send(String message) {
         try {
             if (out != null) {
@@ -48,7 +45,6 @@ public class TronNetworkClient implements Runnable {
         }
     }
 
-    // Helpers pour les commandes courantes
     public void sendReady() { send("READY"); }
     public void sendInput(String dir) { send("INPUT " + dir); }
 
@@ -64,10 +60,8 @@ public class TronNetworkClient implements Runnable {
 
             String line;
             while (running && (line = in.readLine()) != null) {
-                // Notification brute (pour CLI)
                 listener.onRawMessage(line);
 
-                // Parsing pour GUI
                 if (line.startsWith("GAME_START")) handleGameStart(line);
                 else if (line.startsWith("STATE")) handleState(line);
                 else if (line.startsWith("GAME_END")) handleGameEnd(line);
@@ -86,38 +80,45 @@ public class TronNetworkClient implements Runnable {
             int p1y = Integer.parseInt(parts[4]);
             int p2x = Integer.parseInt(parts[7]);
             int p2y = Integer.parseInt(parts[8]);
-            listener.onState("RUNNING", p1x, p1y, true, p2x, p2y, true, new ArrayList<>());
+            listener.onState("RUNNING", p1x, p1y, true, p2x, p2y, true, new ArrayList<>(), new ArrayList<>());
         } catch (NumberFormatException ignored) {}
     }
 
     private void handleState(String line) {
         try {
-            String[] parts = line.split(" ", 6);
-            if (parts.length != 6) return;
+            // STATE matchId tick phase players trails1 trails2 (7 parties)
+            String[] parts = line.split(" ", 7);
+            if (parts.length != 7) return;
 
             String phase = parts[3];
             String[] players = parts[4].split(",");
-            String[] trailsPart = parts[5].split(",");
 
             if (players.length < 2) return;
             String[] p1 = players[0].split(":");
             String[] p2 = players[1].split(":");
 
-            List<Point> trails = new ArrayList<>();
-            if (!parts[5].equals("-")) {
-                for (String t : trailsPart) {
-                    String[] xy = t.split(":");
-                    trails.add(new Point(Integer.parseInt(xy[0]), Integer.parseInt(xy[1])));
-                }
-            }
+            // Parsing des deux listes
+            List<Point> t1 = parseTrails(parts[5]);
+            List<Point> t2 = parseTrails(parts[6]);
 
             listener.onState(phase,
                     Integer.parseInt(p1[1]), Integer.parseInt(p1[2]), "1".equals(p1[4]),
                     Integer.parseInt(p2[1]), Integer.parseInt(p2[2]), "1".equals(p2[4]),
-                    trails);
+                    t1, t2);
         } catch (Exception e) {
-            // Parsing error suppression
+            // Ignorer les erreurs de parsing partielles
         }
+    }
+
+    private List<Point> parseTrails(String data) {
+        List<Point> list = new ArrayList<>();
+        if (!data.equals("-") && !data.isEmpty()) {
+            for (String t : data.split(",")) {
+                String[] xy = t.split(":");
+                list.add(new Point(Integer.parseInt(xy[0]), Integer.parseInt(xy[1])));
+            }
+        }
+        return list;
     }
 
     private void handleGameEnd(String line) {

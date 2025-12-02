@@ -271,20 +271,35 @@ ERROR 2 message invalide
 
 Le client pourra alors corriger son erreur et renvoyer le message correct.
 
+---
+
 ## Instructions de Build
 
-Cloner et compiler le projet avec Maven (Java 21 requis) :
+Le projet inclut un **Maven Wrapper**, ce qui signifie que vous n'avez pas besoin d'installer Maven manuellement.
+Seul le JDK 21 est requis.
 
+### 1. Cloner le projet :
 ```bash
-git clone https://github.com/Abram0303/Light-Tron-Cycle-2D.git
+git clone [https://github.com/Abram0303/Light-Tron-Cycle-2D.git](https://github.com/Abram0303/Light-Tron-Cycle-2D.git)
 cd Light_Tron_Cycle_2D
+ ```
+
+### 2. Compiler et construire le JAR :
+
+Sous Linux / macOS / WSL :
+
+```Bash
 ./mvnw clean package
+Sous Windows (CMD / PowerShell) :
 ```
 
-Une fois compilé, le fichier exécutable ("Fat JAR") se trouve ici :
-`target/Light_Tron_Cycle_2D-1.0-SNAPSHOT.jar`
+```Bash
+./mvnw.cmd clean package
+```
 
------
+Une fois la compilation terminée, le fichier exécutable ("Fat JAR") se trouve ici : `target/Light_Tron_Cycle_2D-1.0-SNAPSHOT.jar`
+
+---
 
 ## Instructions d'Utilisation
 

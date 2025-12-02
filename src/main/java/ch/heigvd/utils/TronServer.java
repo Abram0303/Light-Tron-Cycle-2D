@@ -81,6 +81,13 @@ public class TronServer {
     public void removeClient(TronServerClientHandler handler) {
         connectedClients.remove(handler);
         readyPlayers.remove(handler);
+
+        // Si plus personne n'est connecté, on reset le compteur pour que les prochains soient P1 et P2
+        if (connectedClients.isEmpty()) {
+            nextPlayerId.set(1);
+            System.out.println("Tous les clients sont partis. Reset des IDs à 1.");
+        }
+
         System.out.println("Client déconnecté. Joueurs restants: " + connectedClients.size());
     }
 

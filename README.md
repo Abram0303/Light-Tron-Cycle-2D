@@ -287,27 +287,55 @@ java -jar target/Light_Tron_Cycle_2D-1.0-SNAPSHOT.jar client -n Pseudo
 
 *Commandes disponibles dans le REPL :* `ready`, `up`, `down`, `left`, `right`, `help`, `quit`.
 
------
+---
 
 ## Docker & Déploiement
 
-Le serveur peut être conteneurisé pour un déploiement facile, isolé et reproductible.
+Le projet est conçu pour être distribué via **GitHub Container Registry (GHCR)**.
 
-### Lancer avec Docker Compose
+### 1. Pour les utilisateurs (Lancer le serveur)
 
-Cette commande compile le projet et lance le serveur sur le port `2222` dans un conteneur Alpine Linux optimisé.
+N'importe quel utilisateur peut lancer le serveur immédiatement, sans avoir besoin d'installer Java, Maven ou de cloner le code source.
+
+**Commande unique pour lancer le serveur sur le port 2222 (pot par défaut) :**
+```bash
+docker run -i -p 2222:2222 ghcr.io/abram0303/light-tron-cycle-2d:latest
+````
+
+* `-i` : Garde le processus interactif (permet de voir les logs et d'arrêter avec Ctrl+C).
+* `-p 2222:2222` : Ouvre le port 2222 pour que les clients puissent se connecter.
+* *Note : Si l'image est privée, vous devrez d'abord vous authentifier via `docker login ghcr.io`.*
+
+-----
+
+### 2. Pour les développeurs (Publier une nouvelle version)
+
+Si vous modifiez le code source du serveur, voici comment mettre à jour l'image Docker disponible en ligne.
+
+**Étape 1 : Construction de l'image (Build)**
+
+```bash
+# Assurez-vous d'être à la racine du projet
+docker build -t ghcr.io/abram0303/light-tron-cycle-2d:latest .
+```
+
+**Étape 2 : Publication (Push)**
+
+```bash
+docker push ghcr.io/abram0303/light-tron-cycle-2d:latest
+```
+
+-----
+
+### Alternative locale (Docker Compose)
+
+Pour le développement local, vous pouvez aussi utiliser Docker Compose pour construire et lancer en une seule étape :
 
 ```bash
 docker compose up --build
 ```
 
-### Arrêter le serveur
-
-```bash
-docker compose down
-```
-
------
+---
 
 ## Utilisation d'Outils IA
 

@@ -21,7 +21,13 @@ HEIG-VD, Class C, 2025–2026
         - [Fin de partie (GAME_END)](#fin-de-partie)
         - [Gestion des erreurs (ERROR)](#gestion-des-erreurs)
     - [Exemples](#exemples)
-
+- [Instructions de Build](#instructions-de-build)
+- [Instructions d'Utilisation](#instructions-dutilisation)
+    - [Lancer le Serveur](#lancer-le-serveur)
+    - [Lancer le Client Graphique (GUI)](#lancer-le-client-graphique-gui)
+    - [Lancer le Client Console (CLI)](#lancer-le-client-console-cli)
+- [Docker & Déploiement](#docker--déploiement)
+- [Utilisation d'Outils IA](#utilisation-doutils-ia)
 
 ## Règles du jeu
 
@@ -164,7 +170,7 @@ Les clients n’envoient jamais de message STATE. Ce message est toujours émis 
 
 Response (diffusée par le serveur à tous les joueurs)
 ```
-STATE <matchId> <tick> <phase> <players> <trails>
+STATE <matchId> <tick> <phase> <players> <trailsP1> <trailsP2>
 ```
 
 - matchId : identifiant de la partie.
@@ -174,9 +180,8 @@ STATE <matchId> <tick> <phase> <players> <trails>
   - RUNNING : la partie est en cours. 
   - GAME_OVER : la partie est terminée (un message GAME_END a été ou va être envoyé).
 - players : liste des joueurs, au format : playerId:x:y:dir:alive,playerId2:x2:y2:dir2:alive2 
-- où alive vaut 1 si le joueur est en vie et 0 s’il est déjà en collision.
-- trails : liste des cases occupées par les traînées, au format : x1:y1,x2:y2,x3:y3,...
-Si aucune traînée n’est présente (par exemple au début de la manche), ce champ doit être '-' lorsque aucune traînée n’est présente.
+- trailsP1 : liste des coordonnées occupées par la traînée du Joueur 1 (format x:y,x:y...).
+- trailsP2 : liste des coordonnées occupées par la traînée du Joueur 2. Si une traînée est vide, le champ vaut '-'.
 
 #### Fin de partie
 
@@ -229,3 +234,88 @@ Le client doit au minimum afficher le message d’erreur à l’utilisateur.
 
 ### Exemples
 #### TODO
+
+## Instructions de Build
+
+Cloner et compiler le projet avec Maven (Java 21 requis) :
+
+```bash
+git clone https://github.com/Abram0303/Light-Tron-Cycle-2D.git
+cd Light_Tron_Cycle_2D
+./mvnw clean package
+```
+
+Une fois compilé, le fichier exécutable ("Fat JAR") se trouve ici :
+`target/Light_Tron_Cycle_2D-1.0-SNAPSHOT.jar`
+
+-----
+
+## Instructions d'Utilisation
+
+L'application utilise des sous-commandes pour lancer les différents modes.
+
+### Lancer le Serveur
+
+Démarre le serveur sur le port 2222.
+
+```bash
+java -jar target/Light_Tron_Cycle_2D-1.0-SNAPSHOT.jar server
+```
+
+*Options :*
+
+* `-p <port>` : Changer le port d'écoute.
+* `-t <millis>` : Changer la durée d'un tick (vitesse du jeu).
+
+### Lancer le Client Graphique (GUI)
+
+Lance l'interface JavaFX. C'est le mode recommandé pour jouer.
+
+```bash
+java -jar target/Light_Tron_Cycle_2D-1.0-SNAPSHOT.jar gui
+```
+
+Une fois lancé, cliquez sur **START** pour vous signaler comme "Prêt". Utilisez les flèches directionnelles, ZQSD ou AWSD pour vous déplacer.
+
+### Lancer le Client Console (CLI)
+
+Lance le mode textuel interactif (REPL). Utile pour le débogage ou les environnements sans écran.
+
+```bash
+java -jar target/Light_Tron_Cycle_2D-1.0-SNAPSHOT.jar client -n Pseudo
+```
+
+*Commandes disponibles dans le REPL :* `ready`, `up`, `down`, `left`, `right`, `help`, `quit`.
+
+-----
+
+## Docker & Déploiement
+
+Le serveur peut être conteneurisé pour un déploiement facile, isolé et reproductible.
+
+### Lancer avec Docker Compose
+
+Cette commande compile le projet et lance le serveur sur le port `2222` dans un conteneur Alpine Linux optimisé.
+
+```bash
+docker compose up --build
+```
+
+### Arrêter le serveur
+
+```bash
+docker compose down
+```
+
+-----
+
+## Utilisation d'Outils IA
+
+ChatGPT a été utilisé comme outil de support pour :
+
+* La génération de la structure initiale du code JavaFX; principalement dans le code pour générer la map.
+* L'optimisation du Dockerfile (Multi-stage build); quelle image utiliser, etc.
+* La rédaction et la correction de la documentation technique.
+* Le débogage des problèmes de concurrence (Synchronized Lists et l'affichage des traces des différentes motos).
+
+L'intégralité du code final a été revue, intégrée et validée manuellement par les auteurs.

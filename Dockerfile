@@ -18,6 +18,9 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
+# Permet de lier l'image au dépôt github
+LABEL org.opencontainers.image.source=https://github.com/Abram0303/Light-Tron-Cycle-2D
+
 # On le renomme "server.jar" uniquement DANS le conteneur pour simplifier la commande suivante
 COPY --from=build /app/target/Light_Tron_Cycle_2D-1.0-SNAPSHOT.jar server.jar
 

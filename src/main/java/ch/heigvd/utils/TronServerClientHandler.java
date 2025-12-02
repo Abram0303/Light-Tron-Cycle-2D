@@ -21,13 +21,23 @@ public class TronServerClientHandler implements Runnable {
     }
 
     public void setPendingDirection(String direction) { this.pendingDirection = direction; }
+
+    /**
+     * Récupère la dernière direction demandée par le joueur et la consomme (reset à null).
+     * Utilisé par le thread de jeu (TronGame) pour appliquer les inputs.
+     */
     public String consumePendingDirection() {
         String d = pendingDirection;
         pendingDirection = null;
         return d;
     }
+
     public String getPlayerId() { return playerId; }
 
+    /**
+     * Boucle principale du thread : gère le handshake (HELLO), écoute les commandes
+     * et nettoie les ressources à la déconnexion (finally).
+     */
     @Override
     public void run() {
         try (
@@ -65,6 +75,9 @@ public class TronServerClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Analyse et dirige les commandes reçues (READY, INPUT) vers les méthodes appropriées.
+     */
     private void handleCommand(String line) throws IOException {
         String[] parts = line.trim().split(" ");
         if (parts.length == 0) return;
@@ -75,12 +88,18 @@ public class TronServerClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Gère la commande READY : marque le joueur comme prêt et notifie le serveur pour lancer la partie.
+     */
     private void handleReady() throws IOException {
         if (ready) { sendError(3, "Déjà READY"); return; }
         ready = true;
         server.registerPlayer(this);
     }
 
+    /**
+     * Valide et enregistre la direction demandée (INPUT) pour le prochain tick de jeu.
+     */
     private void handleInput(String[] parts) throws IOException {
         if (parts.length != 2) { sendError(2, "Usage: INPUT <DIR>"); return; }
         String d = parts[1];
@@ -91,8 +110,10 @@ public class TronServerClientHandler implements Runnable {
         setPendingDirection(d);
     }
 
+    /**
+     * Envoie un message au client de manière thread-safe (synchronized) pour éviter les conflits d'écriture.
+     */
     public void sendMessage(String message) throws IOException {
-        // IMPORTANT: Synchronisation pour éviter les conflits d'écriture entre threads
         synchronized (out) {
             out.write(message + END_OF_LINE);
             out.flush();

@@ -4,7 +4,8 @@ public enum Direction {
     UP, DOWN, LEFT, RIGHT;
 
     public static Direction fromString(String s) {
-        return Direction.valueOf(s.toUpperCase()); // Retourne la direction correspondante à la chaîne
+        // Retourne la direction correspondante à la chaîne de caractère
+        return Direction.valueOf(s.toUpperCase());
     }
 
     @Override

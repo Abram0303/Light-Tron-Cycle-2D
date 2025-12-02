@@ -36,6 +36,9 @@ public class GameCanvas extends Canvas {
     @Override
     public double prefHeight(double width) { return getHeight(); }
 
+    /**
+     * Charge une image depuis les ressources de manière sécurisée (ne plante pas si fichier manquant).
+     */
     private Image safeLoadImage(String path) {
         try {
             return new Image(getClass().getResourceAsStream(path));
@@ -44,6 +47,10 @@ public class GameCanvas extends Canvas {
         }
     }
 
+    /**
+     * Méthode principale de rendu : dessine la grille, les traînées et les joueurs.
+     * Applique également les effets visuels (néon/glow).
+     */
     public void draw() {
         double w = getWidth();
         double h = getHeight();
@@ -51,7 +58,7 @@ public class GameCanvas extends Canvas {
 
         GraphicsContext g = getGraphicsContext2D();
 
-        // 1. Fond noir profond
+        // Fond noir profond
         g.setFill(Color.BLACK);
         g.fillRect(0, 0, w, h);
 
@@ -66,16 +73,16 @@ public class GameCanvas extends Canvas {
         double gridWidth = cols * cellSize;
         double gridHeight = rows * cellSize;
 
-        // Cast en int pour éviter le flou (anti-aliasing) sur la grille
+        // Cast en int pour éviter le flou sur la grille
         int offsetX = (int) ((w - gridWidth) / 2);
         int offsetY = (int) ((h - gridHeight) / 2);
 
         g.save();
         g.translate(offsetX, offsetY);
 
-        // --- DESSIN DU JEU ---
+        // Dessin du jeu
 
-        // Fond du plateau (Vignette bleutée sombre)
+        // Fond du plateau
         var bg = new RadialGradient(0, 0, 0.5, 0.5, 1.0, true, CycleMethod.NO_CYCLE,
                 new Stop(0.0, Color.rgb(20, 25, 45)),
                 new Stop(1.0, Color.rgb(5, 5, 10)));
@@ -99,7 +106,7 @@ public class GameCanvas extends Canvas {
         g.setLineWidth(2.0);
         g.strokeRect(0, 0, gridWidth, gridHeight);
 
-        // Effet de lueur (Glow) global pour les éléments du jeu
+        // Effet de lueur global pour les éléments du jeu
         g.setEffect(new DropShadow(10, Color.rgb(0, 255, 255, 0.3)));
 
         // Traces P1 (Cyan)
@@ -122,26 +129,31 @@ public class GameCanvas extends Canvas {
         drawPlayer(g, p1Image, state.p1x, state.p1y, cellSize, state.p1Alive, P1_COLOR);
         drawPlayer(g, p2Image, state.p2x, state.p2y, cellSize, state.p2Alive, P2_COLOR);
 
-        g.setEffect(null); // Reset effet
+        g.setEffect(null);
         g.restore();
     }
 
+    /**
+     * Dessine un joueur spécifique (sprite ou forme fallback) avec gestion de la transparence si mort.
+     */
     private void drawPlayer(GraphicsContext g, Image img, int x, int y, double size, boolean alive, Color fallbackColor) {
         double px = x * size;
         double py = y * size;
 
+        // Fantôme si mort
         if (!alive) {
-            g.setGlobalAlpha(0.3); // Fantôme si mort
+            g.setGlobalAlpha(0.3);
         }
 
         if (img != null && !img.isError()) {
-            // Dessiner l'image un peu plus grande (x2) centrée
+            // Dessiner l'image un peu plus grande centrée
             g.drawImage(img, px - size * 0.5, py - size * 0.5, size * 2, size * 2);
         } else {
+            // Cas si l'image ne charge pas
             // Fallback : Rond néon
             g.setFill(fallbackColor);
             g.fillOval(px, py, size, size);
-            // Petit point blanc au centre pour faire "tête"
+            // Petit point blanc au centre pour faire la tête
             g.setFill(Color.WHITE);
             g.fillOval(px + size*0.3, py + size*0.3, size*0.4, size*0.4);
         }

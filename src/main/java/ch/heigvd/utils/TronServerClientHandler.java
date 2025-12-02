@@ -57,7 +57,11 @@ public class TronServerClientHandler implements Runnable {
         } catch (IOException e) {
             System.err.println("Client handler error: " + e.getMessage());
         } finally {
-            // Optionnel: désinscrire le joueur si nécessaire
+            // On retire le client du serveur dès que la boucle s'arrête
+            server.removeClient(this);
+
+            // Fermeture de sécurité
+            try { clienSocket.close(); } catch (IOException e) {}
         }
     }
 

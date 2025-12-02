@@ -41,7 +41,6 @@ public class TronClientFX extends Application {
         gameCanvas.widthProperty().bind(canvasContainer.widthProperty());
         gameCanvas.heightProperty().bind(canvasContainer.heightProperty());
 
-        // Redessiner au redimensionnement
         gameCanvas.widthProperty().addListener(obs -> gameCanvas.draw());
         gameCanvas.heightProperty().addListener(obs -> gameCanvas.draw());
 
@@ -98,23 +97,19 @@ public class TronClientFX extends Application {
                     state.p1x = p1x; state.p1y = p1y; state.p1Alive = p1Alive;
                     state.p2x = p2x; state.p2y = p2y; state.p2Alive = p2Alive;
 
-                    // Mise à jour des traces P1
+                    // --- CORRECTION MAJEURE ICI ---
+                    // On remplace la liste locale par celle du serveur (état autoritaire)
+
+                    state.p1Trails.clear();
                     if (!t1.isEmpty()) {
                         state.p1Trails.addAll(t1);
-                    } else if (phase.equals("RUNNING") && state.p1Trails.isEmpty()) {
-                        // Reset debut de partie (si liste serveur vide, liste locale vide)
                     }
 
-                    // Mise à jour des traces P2
+                    state.p2Trails.clear();
                     if (!t2.isEmpty()) {
                         state.p2Trails.addAll(t2);
                     }
-
-                    // Reset complet si retour au lobby
-                    if (phase.equals("LOBBY") && (!state.p1Trails.isEmpty() || !state.p2Trails.isEmpty())) {
-                        state.p1Trails.clear();
-                        state.p2Trails.clear();
-                    }
+                    // ------------------------------
 
                     statusLabel.setText("Phase: " + phase);
                     gameCanvas.draw();
@@ -134,9 +129,7 @@ public class TronClientFX extends Application {
                     alert.show();
 
                     startButton.setDisable(false);
-                    // On vide les listes pour la prochaine
-                    state.p1Trails.clear();
-                    state.p2Trails.clear();
+                    // Pas besoin de vider ici, le prochain STATE LOBBY ou RUNNING le fera via les clear() ci-dessus
                 });
             }
 

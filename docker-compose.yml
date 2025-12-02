@@ -1,0 +1,9 @@
+services:
+  tron-server:
+    build: .
+    container_name: light-tron-server
+    ports:
+      - "2222:2222"
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Zurich

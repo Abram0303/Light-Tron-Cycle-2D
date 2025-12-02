@@ -280,7 +280,8 @@ Seul le JDK 21 est requis.
 
 ### 1. Cloner le projet :
 ```bash
-git clone [https://github.com/Abram0303/Light-Tron-Cycle-2D.git](https://github.com/Abram0303/Light-Tron-Cycle-2D.git)
+git clone https://github.com/Abram0303/Light-Tron-Cycle-2D.git
+
 cd Light_Tron_Cycle_2D
  ```
 
@@ -290,8 +291,9 @@ Sous Linux / macOS / WSL :
 
 ```Bash
 ./mvnw clean package
-Sous Windows (CMD / PowerShell) :
 ```
+
+Sous Windows (CMD / PowerShell) :
 
 ```Bash
 ./mvnw.cmd clean package

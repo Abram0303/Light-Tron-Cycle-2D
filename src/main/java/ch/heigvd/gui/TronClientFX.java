@@ -22,6 +22,10 @@ import java.util.List;
 
 public class TronClientFX extends Application {
 
+    // variables statiques pour recevoir l'ip/port
+    public static String serverHost = "localhost";
+    public static int serverPort = 2222;
+
     private ClientGameState state;
     private GameCanvas gameCanvas;
     private TronNetworkClient client;
@@ -95,7 +99,7 @@ public class TronClientFX extends Application {
         });
 
         // Initialisation du client réseau avec gestion des callbacks
-        client = new TronNetworkClient("localhost", 2222, "PlayerFX", new TronMessageListener() {
+        client = new TronNetworkClient(serverHost, serverPort, "PlayerFX", new TronMessageListener() {
 
             /**
              * Met à jour l'état local du jeu (positions, traces) à réception d'un paquet STATE.
@@ -107,7 +111,7 @@ public class TronClientFX extends Application {
                     state.p1x = p1x; state.p1y = p1y; state.p1Alive = p1Alive;
                     state.p2x = p2x; state.p2y = p2y; state.p2Alive = p2Alive;
 
-                    // Mise à jour complète des listes locales
+                    // Mise à jour complète des listes locales (état autoritaire du serveur)
                     state.p1Trails.clear();
                     if (!t1.isEmpty()) {
                         state.p1Trails.addAll(t1);

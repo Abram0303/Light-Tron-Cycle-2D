@@ -19,8 +19,8 @@ public class ServerCommand implements Runnable {
 
     @Option(
             names = {"-t", "--tick-millis"},
-            description = "Durée d'un tick de jeu en millisecondes (par défaut : 50)",
-            defaultValue = "50"
+            description = "Durée d'un tick de jeu en millisecondes (par défaut : 150)",
+            defaultValue = "150"
     )
     private int tickMillis;
 

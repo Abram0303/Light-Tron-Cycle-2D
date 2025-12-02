@@ -124,4 +124,8 @@ public class TronServerClientHandler implements Runnable {
     private void sendError(int code, String message) throws IOException {
         sendMessage("ERROR " + code + " " + message);
     }
+
+    public void resetReady() {
+        this.ready = false;
+    }
 }

@@ -81,6 +81,10 @@ public class TronGame implements Runnable {
             }
         } catch (InterruptedException | IOException e) {
             System.err.println("Fin de partie anormale : " + e.getMessage());
+        } finally {
+            p1.resetReady();
+            p2.resetReady();
+            System.out.println("Partie terminée. Joueurs réinitialisés.");
         }
     }
 

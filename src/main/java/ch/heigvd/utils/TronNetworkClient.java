@@ -24,6 +24,9 @@ public class TronNetworkClient implements Runnable {
         this.listener = listener;
     }
 
+    /**
+     * Lance le thread réseau en arrière-plan (daemon) pour écouter le serveur.
+     */
     public void start() {
         Thread t = new Thread(this, "NetworkClientThread");
         t.setDaemon(true);
@@ -32,6 +35,9 @@ public class TronNetworkClient implements Runnable {
 
     public void stop() { running = false; }
 
+    /**
+     * Envoie un message brut au serveur de manière thread-safe (synchronized).
+     */
     public void send(String message) {
         try {
             if (out != null) {
@@ -48,6 +54,9 @@ public class TronNetworkClient implements Runnable {
     public void sendReady() { send("READY"); }
     public void sendInput(String dir) { send("INPUT " + dir); }
 
+    /**
+     * Boucle principale : connecte le socket, effectue le handshake et écoute les messages entrants.
+     */
     @Override
     public void run() {
         try (
@@ -84,9 +93,11 @@ public class TronNetworkClient implements Runnable {
         } catch (NumberFormatException ignored) {}
     }
 
+    /**
+     * Parse le message STATE complet (phase, joueurs, et les deux listes de traînées distinctes).
+     */
     private void handleState(String line) {
         try {
-            // STATE matchId tick phase players trails1 trails2 (7 parties)
             String[] parts = line.split(" ", 7);
             if (parts.length != 7) return;
 
@@ -110,6 +121,9 @@ public class TronNetworkClient implements Runnable {
         }
     }
 
+    /**
+     * Convertit une chaîne de coordonnées compressée ("x:y,x:y") en une liste d'objets Point.
+     */
     private List<Point> parseTrails(String data) {
         List<Point> list = new ArrayList<>();
         if (!data.equals("-") && !data.isEmpty()) {

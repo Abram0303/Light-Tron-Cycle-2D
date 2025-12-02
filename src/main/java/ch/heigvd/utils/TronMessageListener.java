@@ -5,7 +5,7 @@ import java.util.List;
 public interface TronMessageListener {
     default void onRawMessage(String msg) {}
 
-    // Signature modifiée : trailsP1 et trailsP2 séparés
+    // trailsP1 et trailsP2 séparés pour avoir 2 couleurs distinctes
     void onState(String phase,
                  int p1x, int p1y, boolean p1Alive,
                  int p2x, int p2y, boolean p2Alive,

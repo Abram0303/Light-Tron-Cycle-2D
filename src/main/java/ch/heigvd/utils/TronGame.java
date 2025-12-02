@@ -34,6 +34,9 @@ public class TronGame implements Runnable {
         markTrail(p2x, p2y, 2);
     }
 
+    /**
+     * Boucle principale du jeu : gère le temps (tick rate), la simulation physique et la synchronisation réseau.
+     */
     @Override
     public void run() {
         try {
@@ -81,7 +84,9 @@ public class TronGame implements Runnable {
         }
     }
 
-    // Gérer proprement la déconnexion
+    /**
+     * Gère la déconnexion brutale d'un joueur en arrêtant la partie et en notifiant les survivants.
+     */
     private void handleDisconnection(IOException e) {
         System.out.println("Déconnexion détectée pendant la partie : " + e.getMessage());
         phase = Phase.GAME_OVER;
@@ -93,6 +98,9 @@ public class TronGame implements Runnable {
         } catch (Exception ignored) {}
     }
 
+    /**
+     * Détermine le vainqueur (ou Double KO) après une collision et envoie le message de fin.
+     */
     private void endGameAfterCollision() throws IOException {
         phase = Phase.GAME_OVER;
         String r = (!p1Alive && !p2Alive) ? "DOUBLE_KO" : "COLLISION";
@@ -108,6 +116,9 @@ public class TronGame implements Runnable {
         p1.sendMessage(msg); p2.sendMessage(msg);
     }
 
+    /**
+     * Construit et diffuse l'état actuel du jeu (positions, directions, nouvelles traces) aux deux joueurs.
+     */
     private void sendState() throws IOException {
         String pStr = String.format("%s:%d:%d:%s:%d,%s:%d:%d:%s:%d", p1.getPlayerId(), p1x, p1y, p1dir, p1Alive?1:0, p2.getPlayerId(), p2x, p2y, p2dir, p2Alive?1:0);
 
@@ -118,6 +129,9 @@ public class TronGame implements Runnable {
         p1.sendMessage(msg); p2.sendMessage(msg);
     }
 
+    /**
+     * Récupère et applique les dernières directions validées envoyées par les clients.
+     */
     private void applyInputs() {
         String d1 = p1.consumePendingDirection();
         String d2 = p2.consumePendingDirection();
@@ -125,6 +139,9 @@ public class TronGame implements Runnable {
         if (d2 != null) p2dir = Direction.fromString(d2);
     }
 
+    /**
+     * Avance la simulation d'un pas : calcule les nouvelles positions et détecte les collisions (murs/traces).
+     */
     private void stepSimulation() {
         if (!p1Alive && !p2Alive) return;
         int nx1 = p1x + dx(p1dir), ny1 = p1y + dy(p1dir);
@@ -143,6 +160,10 @@ public class TronGame implements Runnable {
     private int dy(Direction d) { return d == Direction.UP ? -1 : (d == Direction.DOWN ? 1 : 0); }
     private boolean isInside(int x, int y) { return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT; }
     private boolean isTrail(int x, int y) { return trailsMap[x][y]; }
+
+    /**
+     * Marque une case comme occupée dans la grille globale et l'ajoute à l'historique du joueur.
+     */
     private void markTrail(int x, int y, int playerNum) {
         if(!trailsMap[x][y]) {
             trailsMap[x][y] = true;

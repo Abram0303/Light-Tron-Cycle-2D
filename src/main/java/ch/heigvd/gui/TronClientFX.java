@@ -30,6 +30,9 @@ public class TronClientFX extends Application {
     private Button startButton;
     private BorderPane root;
 
+    /**
+     * Point d'entrée JavaFX : configure l'interface, les événements clavier et initialise la connexion réseau.
+     */
     @Override
     public void start(Stage stage) {
         state = new ClientGameState(80, 40);
@@ -38,6 +41,7 @@ public class TronClientFX extends Application {
         StackPane canvasContainer = new StackPane(gameCanvas);
         canvasContainer.setStyle("-fx-background-color: black;");
 
+        // Binding pour le redimensionnement
         gameCanvas.widthProperty().bind(canvasContainer.widthProperty());
         gameCanvas.heightProperty().bind(canvasContainer.heightProperty());
 
@@ -78,6 +82,7 @@ public class TronClientFX extends Application {
         stage.setMinHeight(400);
         stage.show();
 
+        // Gestion des entrées clavier (ZQSD, WASD, Flèches)
         scene.setOnKeyPressed(event -> {
             if (client == null) return;
             KeyCode code = event.getCode();
@@ -89,7 +94,12 @@ public class TronClientFX extends Application {
             }
         });
 
+        // Initialisation du client réseau avec gestion des callbacks
         client = new TronNetworkClient("localhost", 2222, "PlayerFX", new TronMessageListener() {
+
+            /**
+             * Met à jour l'état local du jeu (positions, traces) à réception d'un paquet STATE.
+             */
             @Override
             public void onState(String phase, int p1x, int p1y, boolean p1Alive, int p2x, int p2y, boolean p2Alive, List<Point> t1, List<Point> t2) {
                 Platform.runLater(() -> {
@@ -97,9 +107,7 @@ public class TronClientFX extends Application {
                     state.p1x = p1x; state.p1y = p1y; state.p1Alive = p1Alive;
                     state.p2x = p2x; state.p2y = p2y; state.p2Alive = p2Alive;
 
-                    // --- CORRECTION MAJEURE ICI ---
-                    // On remplace la liste locale par celle du serveur (état autoritaire)
-
+                    // Mise à jour complète des listes locales
                     state.p1Trails.clear();
                     if (!t1.isEmpty()) {
                         state.p1Trails.addAll(t1);
@@ -109,13 +117,15 @@ public class TronClientFX extends Application {
                     if (!t2.isEmpty()) {
                         state.p2Trails.addAll(t2);
                     }
-                    // ------------------------------
 
                     statusLabel.setText("Phase: " + phase);
                     gameCanvas.draw();
                 });
             }
 
+            /**
+             * Gère la fin de partie (affichage du vainqueur et réactivation du bouton Start).
+             */
             @Override
             public void onGameEnd(String reason, String winnerId) {
                 Platform.runLater(() -> {
@@ -129,10 +139,12 @@ public class TronClientFX extends Application {
                     alert.show();
 
                     startButton.setDisable(false);
-                    // Pas besoin de vider ici, le prochain STATE LOBBY ou RUNNING le fera via les clear() ci-dessus
                 });
             }
 
+            /**
+             * Affiche les erreurs critiques ou informatives provenant du serveur.
+             */
             @Override
             public void onError(int code, String message) {
                 Platform.runLater(() -> {

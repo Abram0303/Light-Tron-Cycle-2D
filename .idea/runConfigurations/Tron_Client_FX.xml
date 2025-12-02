@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Tron Client FX" type="Application" factoryName="Application" singleton="false">
+    <option name="MAIN_CLASS_NAME" value="ch.heigvd.gui.Launcher" />
+    <module name="Light_Tron_Cycle_2D" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="ch.heigvd.utils.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

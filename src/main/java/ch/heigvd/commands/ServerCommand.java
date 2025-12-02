@@ -27,7 +27,7 @@ public class ServerCommand implements Runnable {
     @Override
     public void run() {
         System.out.printf("Démarrage du serveur sur le port %d (tick=%d ms)...%n", port, tickMillis);
-        TronServer server = new TronServer(port, tickMillis); // Création du serveur avec les paramètres de la ligne de commande
-        server.start(); // Démarrage du serveur
+        TronServer server = new TronServer(port, tickMillis);
+        server.start();
     }
 }

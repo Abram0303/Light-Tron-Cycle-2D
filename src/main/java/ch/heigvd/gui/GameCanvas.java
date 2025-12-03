@@ -106,9 +106,6 @@ public class GameCanvas extends Canvas {
         g.setLineWidth(2.0);
         g.strokeRect(0, 0, gridWidth, gridHeight);
 
-        // Effet de lueur global pour les éléments du jeu
-        g.setEffect(new DropShadow(10, Color.rgb(0, 255, 255, 0.3)));
-
         // Traces P1 (Cyan)
         g.setFill(P1_COLOR.deriveColor(0, 1, 1, 0.9));
         synchronized (state.p1Trails) {
@@ -124,6 +121,9 @@ public class GameCanvas extends Canvas {
                 g.fillRect(p.x() * cellSize, p.y() * cellSize, cellSize, cellSize);
             }
         }
+
+        // Effet de lueur global pour les éléments du jeu
+        g.setEffect(new DropShadow(10, Color.rgb(0, 255, 255, 0.3)));
 
         // Joueurs
         drawPlayer(g, p1Image, state.p1x, state.p1y, cellSize, state.p1Alive, P1_COLOR);
